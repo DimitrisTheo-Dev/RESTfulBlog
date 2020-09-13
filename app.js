@@ -4,22 +4,35 @@ bodyParser       = require("body-parser"),
 mongoose         = require("mongoose"),
 expressSanitizer = require("express-sanitizer"),
 methodOverride   = require("method-override");
-    
-mongoose.connect("mongodb://127.0.0.1:27017/restful_blog_app");
+
+
 app.set("view engine","ejs");
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended:true}));
 // /app.use(expressSanitizer)
 app.use(methodOverride("_method"));
 
-var blogSchema = new mongoose.Schema({
+mongoose.Promise = global.Promise;
+
+// Connect to db
+mongoose.connect("mongodb://127.0.0.1:27017/restful_blog_app", {
+    useUnifiedTopology: true
+}).then(() => {
+    console.log("Succesful connection to the db");
+}).catch(err => {
+    console.log("Could not connect to db. Exiting...", err);
+    process.exit();
+});
+
+
+let blogSchema = new mongoose.Schema({
    title: String,
    image: String,
    body: String,
    created: {type: Date, default: Date.now}
 });
 
-var Blog = mongoose.model("Blog", blogSchema);
+let Blog = mongoose.model("Blog", blogSchema);
 
 //RESTful ROUTES
 app.get("/", function(req, res){
@@ -100,6 +113,6 @@ app.delete("/blogs/:id", function(req, res){
    });
 });
 
-app.listen(process.env.PORT, process.env.IP, function(){
-   console.log("Server started!"); 
+app.listen(3000, () => {
+    console.log("Listening on 3000");
 });
